@@ -26,6 +26,7 @@ import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.OpenBitSet;
 import org.elasticsearch.common.collect.Iterators2;
+import org.elasticsearch.common.lease.Releasable;
 import org.elasticsearch.common.lease.Releasables;
 import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.common.util.BytesRefHash;
@@ -71,7 +72,7 @@ public class StringTermsAggregator extends BucketsAggregator {
         this.minDocCount = minDocCount;
         this.includeExclude = includeExclude;
         // A bit hacky...
-        if (!(this instanceof WithGlobalOrdinalsHash) || !(this instanceof WithGlobalOrdinalsDirect)) {
+        if (!(this instanceof WithGlobalOrdinalsHash || this instanceof WithGlobalOrdinalsDirect)) {
             bucketOrds = new BytesRefHash(estimatedBucketCount, aggregationContext.bigArrays());
         } else {
             bucketOrds = null;
@@ -350,6 +351,10 @@ public class StringTermsAggregator extends BucketsAggregator {
 
         @Override
         public void setNextReader(AtomicReaderContext reader) {
+            if (globalOrdinals != null && globalOrdinals instanceof Releasable) {
+                Releasables.release((Releasable) globalOrdinals);
+            }
+
             globalValues = valuesSource.globalBytesValues();
             globalOrdinals = globalValues.ordinals();
         }
@@ -390,7 +395,11 @@ public class StringTermsAggregator extends BucketsAggregator {
 
         @Override
         public void doRelease() {
-            Releasables.release(bucketOrds);
+            if (globalOrdinals != null && globalOrdinals instanceof Releasable) {
+                Releasables.release((Releasable) globalOrdinals, bucketOrds);
+            } else {
+                Releasables.release(bucketOrds);
+            }
         }
     }
 
@@ -421,6 +430,10 @@ public class StringTermsAggregator extends BucketsAggregator {
 
         @Override
         public void setNextReader(AtomicReaderContext reader) {
+            if (globalOrdinals != null && globalOrdinals instanceof Releasable) {
+                Releasables.release((Releasable) globalOrdinals);
+            }
+
             globalValues = valuesSource.globalBytesValues();
             globalOrdinals = globalValues.ordinals();
         }
@@ -456,6 +469,9 @@ public class StringTermsAggregator extends BucketsAggregator {
 
         @Override
         public void doRelease() {
+            if (globalOrdinals != null && globalOrdinals instanceof Releasable) {
+                Releasables.release((Releasable) globalOrdinals);
+            }
         }
     }
 

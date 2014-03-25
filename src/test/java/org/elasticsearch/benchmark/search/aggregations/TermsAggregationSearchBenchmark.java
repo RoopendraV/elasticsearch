@@ -61,7 +61,7 @@ public class TermsAggregationSearchBenchmark {
     static int BATCH = 1000;
     static int QUERY_WARMUP = 10;
     static int QUERY_COUNT = 100;
-    static int NUMBER_OF_TERMS = 100000;
+    static int NUMBER_OF_TERMS = 200;
     static int NUMBER_OF_MULTI_VALUE_TERMS = 10;
     static int STRING_TERM_SIZE = 5;
 
@@ -267,23 +267,10 @@ public class TermsAggregationSearchBenchmark {
         stats.add(terms("terms_agg_lm", Method.AGGREGATION, "lm_value", null));
         stats.add(terms("terms_agg_lm_dv", Method.AGGREGATION, "lm_value_dv", null));
 
-        stats.add(termsStats("terms_stats_facet_s_l", Method.FACET, "s_value", "l_value", null));
-        stats.add(termsStats("terms_stats_facet_s_l_dv", Method.FACET, "s_value_dv", "l_value_dv", null));
-        stats.add(termsStats("terms_stats_agg_s_l", Method.AGGREGATION, "s_value", "l_value", null));
-        stats.add(termsStats("terms_stats_agg_s_l_dv", Method.AGGREGATION, "s_value_dv", "l_value_dv", null));
-        stats.add(termsStats("terms_stats_facet_s_lm", Method.FACET, "s_value", "lm_value", null));
-        stats.add(termsStats("terms_stats_facet_s_lm_dv", Method.FACET, "s_value_dv", "lm_value_dv", null));
-        stats.add(termsStats("terms_stats_agg_s_lm", Method.AGGREGATION, "s_value", "lm_value", null));
-        stats.add(termsStats("terms_stats_agg_s_lm_dv", Method.AGGREGATION, "s_value_dv", "lm_value_dv", null));
-        stats.add(termsStats("terms_stats_facet_sm_l", Method.FACET, "sm_value", "l_value", null));
-        stats.add(termsStats("terms_stats_facet_sm_l_dv", Method.FACET, "sm_value_dv", "l_value_dv", null));
-        stats.add(termsStats("terms_stats_agg_sm_l", Method.AGGREGATION, "sm_value", "l_value", null));
-        stats.add(termsStats("terms_stats_agg_sm_l_dv", Method.AGGREGATION, "sm_value_dv", "l_value_dv", null));
-
         System.out.println("------------------ SUMMARY -------------------------------");
-        System.out.format("%25s%10s%10s\n", "name", "took", "millis");
+        System.out.format("%35s%10s%10s\n", "name", "took", "millis");
         for (StatsResult stat : stats) {
-            System.out.format("%25s%10s%10d\n", stat.name, TimeValue.timeValueMillis(stat.took), (stat.took / QUERY_COUNT));
+            System.out.format("%35s%10s%10d\n", stat.name, TimeValue.timeValueMillis(stat.took), (stat.took / QUERY_COUNT));
         }
         System.out.println("------------------ SUMMARY -------------------------------");
 
